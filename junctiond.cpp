@@ -38,7 +38,7 @@ public:
         }
     }
 
-    bool JunctionD::spawn(const FunctionData &func) {
+    bool spawn(const FunctionData &func) {
         std::string cfgFile;
         if (!generateConfig(func, cfgFile)) return false;
 

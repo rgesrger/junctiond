@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <mutex>
+#include <thread>
 
 struct FunctionData {
     std::string name;
