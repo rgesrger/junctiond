@@ -32,10 +32,12 @@ public:
 
 private:
     void monitorInstances();
+    bool generateConfig(const FunctionData &func, std::string &cfgPath); // declare here
 
     std::map<std::string, FunctionStatus> statusMap;
     std::mutex mtx;
     std::thread monitorThread;
 };
+
 
 #endif // JUNCTIOND_H
