@@ -92,7 +92,8 @@ bool JunctionD::generateConfig(const FunctionData &func, std::string &cfgPath) {
     int cpu = func.cpu > 0 ? func.cpu : 1;
     int memory = func.memoryMB > 0 ? func.memoryMB : 128;
 
-    std::string workspaceDir = "/var/lib/junction/" + name;
+    const char* home = std::getenv("HOME");
+    std::string workspaceDir = std::string(home) + "/junction/" + name; 
     system(("mkdir -p " + workspaceDir).c_str());
     cfgPath = workspaceDir + "/" + name + ".config";
 
