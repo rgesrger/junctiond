@@ -1,5 +1,3 @@
-# Makefile for building the JunctionD test
-
 CXX = g++
 CXXFLAGS = -std=c++17 -pthread -Wall -O2
 TARGET = test
