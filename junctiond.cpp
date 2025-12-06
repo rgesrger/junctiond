@@ -85,23 +85,20 @@ void JunctionD::monitorInstances() {
         }
     }
 }
-
 bool JunctionD::generateConfig(const FunctionData &func, std::string &cfgPath) {
-    std::string name    = func.name;
-    std::string rootfs  = func.rootfs;
-    int cpu             = func.cpu > 0 ? func.cpu : 1;
-    int memory          = func.memoryMB > 0 ? func.memoryMB : 128;
+    const char* home = std::getenv("HOME");
+    std::string baseDir = std::string(home) + "/.junction";
 
-    // per-function workspace under /var/lib/junction/<name>/
-    std::string workspaceDir = "/var/lib/junction/" + name;
+    std::string workspaceDir = baseDir + "/" + func.name;
     system(("mkdir -p " + workspaceDir).c_str());
 
-    cfgPath = workspaceDir + "/" + name + ".config";
+    cfgPath = workspaceDir + "/" + func.name + ".config";
+
     std::ofstream cfg(cfgPath);
     if (!cfg.is_open())
         return false;
 
-    // CALADAN DOES NOT ALLOW 127.x IP
+    // valid Caladan IPs
     cfg << "host_addr 18.0.0.2\n";
     cfg << "host_netmask 255.255.255.0\n";
     cfg << "host_gateway 18.0.0.1\n";
@@ -112,10 +109,9 @@ bool JunctionD::generateConfig(const FunctionData &func, std::string &cfgPath) {
     cfg << "runtime_priority lc\n";
     cfg << "runtime_quantum_us 0\n";
 
-    cfg << "rootfs " << rootfs << "\n";
-    cfg << "cpu " << cpu << "\n";
-    cfg << "memoryMB " << memory << "\n";
+    cfg << "rootfs " << func.rootfs << "\n";
+    cfg << "cpu " << func.cpu << "\n";
+    cfg << "memoryMB " << func.memoryMB << "\n";
 
     return true;
 }
-
