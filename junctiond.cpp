@@ -111,14 +111,14 @@ bool JunctionD::generateConfig(const FunctionData &func, std::string &cfgPath) {
     cfg << "host_netmask 255.255.255.0\n";
     cfg << "host_gateway 192.168.127.1\n";
     cfg << "runtime_kthreads 10\n";
-    // cfg << "runtime_spinning_kthreads 0\n";
-    // cfg << "runtime_guaranteed_kthreads 0\n";
-    // cfg << "runtime_priority lc\n";
-    // cfg << "runtime_quantum_us 0\n";
+    cfg << "runtime_spinning_kthreads 0\n";
+    cfg << "runtime_guaranteed_kthreads 0\n";
+    cfg << "runtime_priority lc\n";
+    cfg << "runtime_quantum_us 0\n";
 
-    cfg << "rootfs " << rootfs << "\n";
-    cfg << "cpu " << cpu << "\n";
-    cfg << "memoryMB " << memory << "\n";
+    // cfg << "rootfs " << rootfs << "\n";
+    // cfg << "cpu " << cpu << "\n";
+    // cfg << "memoryMB " << memory << "\n";
 
     cfg.close();
 
