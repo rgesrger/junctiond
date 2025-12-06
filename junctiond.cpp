@@ -114,7 +114,7 @@ bool JunctionD::generateConfig(const FunctionData &func, std::string &cfgPath) {
     cfg << "runtime_spinning_kthreads 0\n";
     cfg << "runtime_guaranteed_kthreads 0\n";
     cfg << "runtime_priority lc\n";
-    cfg << "runtime_quantum_us 0\n";
+    // cfg << "runtime_quantum_us 0\n";
 
     cfg << "rootfs " << rootfs << "\n";
     cfg << "cpu " << cpu << "\n";
