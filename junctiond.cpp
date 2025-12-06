@@ -87,31 +87,35 @@ void JunctionD::monitorInstances() {
 }
 
 bool JunctionD::generateConfig(const FunctionData &func, std::string &cfgPath) {
-    std::string name = func.name.empty() ? "function_default" : func.name;
-    std::string rootfs = func.rootfs.empty() ? "/rootfs" : func.rootfs;
-    int cpu = func.cpu > 0 ? func.cpu : 1;
-    int memory = func.memoryMB > 0 ? func.memoryMB : 128;
+    std::string name    = func.name;
+    std::string rootfs  = func.rootfs;
+    int cpu             = func.cpu > 0 ? func.cpu : 1;
+    int memory          = func.memoryMB > 0 ? func.memoryMB : 128;
 
-    const char* home = std::getenv("HOME");
-    std::string workspaceDir = std::string(home) + "/junction/" + name; 
+    // per-function workspace under /var/lib/junction/<name>/
+    std::string workspaceDir = "/var/lib/junction/" + name;
     system(("mkdir -p " + workspaceDir).c_str());
+
     cfgPath = workspaceDir + "/" + name + ".config";
-
     std::ofstream cfg(cfgPath);
-    if (!cfg.is_open()) return false;
+    if (!cfg.is_open())
+        return false;
 
-    cfg << "# Junction configuration for function: " << name << "\n";
-    cfg << "host_addr 127.0.0.1\n";
+    // CALADAN DOES NOT ALLOW 127.x IP
+    cfg << "host_addr 18.0.0.2\n";
     cfg << "host_netmask 255.255.255.0\n";
-    cfg << "host_gateway 127.0.0.1\n";
+    cfg << "host_gateway 18.0.0.1\n";
+
     cfg << "runtime_kthreads 1\n";
     cfg << "runtime_spinning_kthreads 0\n";
     cfg << "runtime_guaranteed_kthreads 0\n";
     cfg << "runtime_priority lc\n";
     cfg << "runtime_quantum_us 0\n";
+
     cfg << "rootfs " << rootfs << "\n";
     cfg << "cpu " << cpu << "\n";
     cfg << "memoryMB " << memory << "\n";
 
     return true;
 }
+
