@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <cstdlib>
 #include <chrono>
+#include <sys/stat.h>
 
 JunctionD::JunctionD() {
     monitorThread = std::thread([this]() { monitorInstances(); });
@@ -86,32 +87,41 @@ void JunctionD::monitorInstances() {
     }
 }
 bool JunctionD::generateConfig(const FunctionData &func, std::string &cfgPath) {
-    const char* home = std::getenv("HOME");
-    std::string baseDir = std::string(home) + "/.junction";
+    std::string name   = func.name.empty() ? "function_default" : func.name;
+    std::string rootfs = func.rootfs.empty() ? "/rootfs" : func.rootfs;
+    int cpu            = func.cpu > 0 ? func.cpu : 1;
+    int memory         = func.memoryMB > 0 ? func.memoryMB : 128;
 
-    std::string workspaceDir = baseDir + "/" + func.name;
-    system(("mkdir -p " + workspaceDir).c_str());
+    // Workspace folder in current directory
+    std::string workspaceDir = "./junction_" + name;
 
-    cfgPath = workspaceDir + "/" + func.name + ".config";
+    // Create directory if it doesn't exist
+    mkdir(workspaceDir.c_str(), 0755);
+
+    cfgPath = workspaceDir + "/" + name + ".config";
 
     std::ofstream cfg(cfgPath);
-    if (!cfg.is_open())
+    if (!cfg.is_open()) {
+        std::cerr << "[junctiond] Failed to open config file: " << cfgPath << std::endl;
         return false;
+    }
 
-    // valid Caladan IPs
-    cfg << "host_addr 18.0.0.2\n";
-    cfg << "host_netmask 255.255.255.0\n";
-    cfg << "host_gateway 18.0.0.1\n";
+    // Use a valid Caladan/JunctionOS example
+    cfg << "# host_addr 192.168.127.7\n";
+    cfg << "# host_netmask 255.255.255.0\n";
+    cfg << "# host_gateway 192.168.127.1\n";
+    cfg << "# runtime_kthreads 10\n";
+    cfg << "# runtime_spinning_kthreads 0\n";
+    cfg << "# runtime_guaranteed_kthreads 0\n";
+    cfg << "# runtime_priority lc\n";
+    cfg << "# runtime_quantum_us 0\n";
 
-    cfg << "runtime_kthreads 1\n";
-    cfg << "runtime_spinning_kthreads 0\n";
-    cfg << "runtime_guaranteed_kthreads 0\n";
-    cfg << "runtime_priority lc\n";
-    cfg << "runtime_quantum_us 0\n";
+    cfg << "rootfs " << rootfs << "\n";
+    cfg << "cpu " << cpu << "\n";
+    cfg << "memoryMB " << memory << "\n";
 
-    cfg << "rootfs " << func.rootfs << "\n";
-    cfg << "cpu " << func.cpu << "\n";
-    cfg << "memoryMB " << func.memoryMB << "\n";
+    cfg.close();
 
+    std::cout << "[junctiond] Generated config at " << cfgPath << std::endl;
     return true;
 }
